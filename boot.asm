@@ -6,8 +6,9 @@ _start:
 times 33 db 0
 
 start:
-    jmp 0x7c0:step
-step:
+    jmp 0x7c0:step2
+
+step2:
     cli ; clear Interrupts
     mov ax, 0x7c0
     mov ds, ax
@@ -16,8 +17,7 @@ step:
     mov ss, ax
     mov sp, 0x7c00
     sti ; set enable Interrupts
-    mov si, message
-    call print
+
     jmp $
 
 print:
@@ -35,8 +35,6 @@ print_char:
     mov ah, 0x0e
     int 0x10
     ret
-
-message: db 'Hello! from Suyash. First boot loader', 0
 
 times 510-($ - $$) db 0
 dw 0xAA55
