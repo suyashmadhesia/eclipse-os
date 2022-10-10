@@ -57,19 +57,19 @@ gdt_end:
 gdt_descriptor:
     dw gdt_end - gdt_start - 1 
     dd gdt_start
-[BITS 32]
-load32:
-    mov eax, 1
-    mov ecx, 100
-    mov edi, 0x100000
-    call ata_lba_read
-    jmp CODE_SEG:0x100000
+ [BITS 32]
+ load32:
+     mov eax, 1
+     mov ecx, 100
+     mov edi, 0x100000
+     call ata_lba_read
+     jmp CODE_SEG:0x100000
 
 ata_lba_read:
-    mov ebx, eax ; BACKUP the LBA
-    ; Send the highest 8bits of the data of the lba to hard disk
+    mov ebx, eax, ; Backup the LBA
+    ; Send the highest 8 bits of the lba to hard disk controller
     shr eax, 24
-    or eax, 0xE0 ; select the master drive
+    or eax, 0xE0 ; Select the  master drive
     mov dx, 0x1F6
     out dx, al
     ; Finished sending the highest 8 bits of the lba
@@ -80,32 +80,32 @@ ata_lba_read:
     out dx, al
     ; Finished sending the total sectors to read
 
-    ;send more bits to the LBA
-    mov eax, ebx
+    ; Send more bits of the LBA
+    mov eax, ebx ; Restore the backup LBA
     mov dx, 0x1F3
     out dx, al
-    ; Finished send more bits
+    ; Finished sending more bits of the LBA
 
-    ; send more bits of the LBA
+    ; Send more bits of the LBA
     mov dx, 0x1F4
-    mov eax, ebx
+    mov eax, ebx ; Restore the backup LBA
     shr eax, 8
     out dx, al
-    ; Finished sending more bits of LBA
+    ; Finished sending more bits of the LBA
 
     ; Send upper 16 bits of the LBA
     mov dx, 0x1F5
-    mov eax, ebx; Restore the backup LBA
+    mov eax, ebx ; Restore the backup LBA
     shr eax, 16
     out dx, al
-    ;FInished sending upper 16 bits of the LBA
+    ; Finished sending upper 16 bits of the LBA
 
-    mov dx, 0x1F7
+    mov dx, 0x1f7
     mov al, 0x20
     out dx, al
 
-    ;Read all sectors into memory
-.next_sector
+    ; Read all sectors into memory
+.next_sector:
     push ecx
 
 ; Checking if we need to read
@@ -115,15 +115,13 @@ ata_lba_read:
     test al, 8
     jz .try_again
 
-; we need to read 256 at a time
+; We need to read 256 words at a time
     mov ecx, 256
-    mov dx, 0x1f0
+    mov dx, 0x1F0
     rep insw
-
     pop ecx
-    add edi, 512
     loop .next_sector
-
+    ; End of reading sectors into memory
     ret
 
 times 510-($ - $$) db 0
