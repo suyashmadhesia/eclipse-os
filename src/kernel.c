@@ -64,10 +64,10 @@ void print(const char *str)
 void kernel_main()
 {
     terminal_initialize();
-    print("Hello, world!");
+    print("Hello, world!\n");
 
     // Initialize interrupt descriptor table
     idt_init();
 
-    // outb(0x60, 0xff);
+    enable_interrupts();
 }
